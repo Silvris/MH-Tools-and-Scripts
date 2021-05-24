@@ -1,0 +1,40 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Script File
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+//   History: 
+//------------------------------------------------
+local int FileNum;
+local string FileName;
+local int NewFileNum;
+local float Length;
+local float Offset;
+local float SampleRate;
+local float StartPos;
+local float EndPos;
+local int Index;
+int r = 0;
+void FrontierSNDVagi (int r){
+    RunTemplate("VagiSampl.bt");
+    FileNum = GetFileNum();
+    FileName = GetFileName();
+    FileNew("Text",true);
+    NewFileNum = GetFileNum();
+    FileSelect(FileNum);
+    for(i=0;i<Vagi.structCount+1;i++){
+        Offset = Vagi.offset[i];
+        Length = Vagi.length[i];
+        SampleRate = Vagi.sampleRate[i];
+        StartPos = ((Offset/2.0)/SampleRate);
+        EndPos = (StartPos + (Length/SampleRate));
+        Index = i;
+        FPrintf(NewFileNum, "%0.8f	%0.8f	%u\n", StartPos, EndPos, Index);
+    };
+    FileSelect(NewFileNum);
+    FileSave(FileName+".txt");
+};
+FrontierSNDVagi(r);

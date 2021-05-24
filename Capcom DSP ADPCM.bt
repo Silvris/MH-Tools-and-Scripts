@@ -1,0 +1,35 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct{
+    uint uint1;
+    uint uint2;
+}uintBlock;
+
+uint DPSWMagic<bgcolor=0x000000>;
+uint unkn;
+uint fileLength<bgcolor=0xFFFFFF>;
+uint unkn4;
+uint loopBegin<bgcolor=0xFF0000>;
+uint loopEnd<bgcolor=0x0000FF>;
+uint unkn2;
+uint totalSamples<bgcolor=0xF00FF0>;
+uint totalSamples2<bgcolor=0xF00FF0>;
+uint unkn5;
+uint sampleRate;
+uint unkn3[16];
+uint buffer[5];
+byte ADPCM[fileLength-128-392];
+char mrkrMagic[4];
+uint mrkrLength;
+uintBlock mrkrBlock[mrkrLength/8];
+uint tIMEBlock[4];

@@ -1,0 +1,59 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int i;
+
+typedef struct(uint count){
+    byte Pixel[count];
+}ImageData;
+
+typedef struct{
+    byte red;
+    byte green;
+    byte blue;
+    byte alpha;
+}RGBA;
+
+typedef struct(uint count){
+    for(i=0;i<count;i++){
+        RGBA rgbPalette;
+    };
+}Palette;
+
+typedef struct{
+    uint fileSize;
+    uint totalPixel;
+    uint paletteLength;//divided by 4
+    uint16 bitDepth;
+    uint16 imageWidth;
+    uint16 imageHeight;
+    uint16 paletteIndex;
+    uint32 specialUnkn;
+    uint64 NULL0;
+    if(bitDepth == 4){
+        ImageData Image(totalPixel);
+    }
+    else{
+        ImageData Image(totalPixel);
+    };
+    Palette palette(paletteLength/4);
+}APXFile;
+
+typedef struct{
+    uint imageCount;
+    for(i=0;i<imageCount;i++){
+        uint imageOffset;
+        uint imageSize;
+    };
+    APXFile APX[imageCount]<optimize=false>;
+}FTEX;
+FTEX APX;

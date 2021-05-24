@@ -1,0 +1,71 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int i;
+typedef struct{
+    char HeadMagic[4];
+    uint structLength;
+    uint unkn;
+    uint EOHeader;
+    uint unkn3;
+    uint ProgOffset;
+    uint SmplOffset;
+    uint VagiOffset;
+}HeadStruct;
+
+typedef struct{
+    char ProgMagic[4];
+    uint structLength;
+    uint structCount;
+    for(i=0;i<structCount+1;i++){
+        uint unkn1;
+        uint unkn2;
+        short unkn3;
+        byte unkn4;
+    };
+}ProgStruct;
+
+typedef struct{
+    char VagiMagic[4];
+    uint unknversion;
+    uint structCount;
+    uint extra;
+    for(i=0;i<structCount+1;i++){
+        uint offset<bgcolor=0x00FF00>;
+        uint length<bgcolor=0xFF0000>;
+        uint unkn1;
+        uint unkn2;
+        short unkn;
+        ushort sampleRate<bgcolor=0x0000FF>;
+    };
+}VagiStruct;
+
+typedef struct{
+    char SmplMagic[4];
+    uint structLength;
+    uint structCount;
+    uint extra;
+    for(i=0;i<structCount+1;i++){
+        uint unkn1<bgcolor=0xFF00FF>;
+        uint unkn2<bgcolor=0xFFFF00>;
+        uint unkn3<bgcolor=0x00FFFF>;
+    };
+}SmplStruct;
+
+
+HeadStruct Header;
+FSeek(Header.ProgOffset);
+ProgStruct Prog;
+FSeek(Header.SmplOffset);
+SmplStruct Smpl;
+FSeek(Header.VagiOffset);
+VagiStruct Vagi;

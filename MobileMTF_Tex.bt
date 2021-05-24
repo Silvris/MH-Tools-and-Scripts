@@ -1,0 +1,27 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int i;
+
+uint magic; //542655828
+//block 1
+uint Version : 16;
+uint unkn1 : 8;
+uint format : 8;
+//block 2
+uint R1 : 4;
+uint MipMapCount : 4;
+uint unused : 24;
+//block 3
+uint width : 13;
+uint height : 13;
+uint unkn4 : 6;

@@ -1,0 +1,177 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: Silvris, Fandirus, Hariaka, AsteriskAmpersand
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int i = 0;
+local int j = 0;
+local int k = 0;
+local int skip = 8;
+local int skipCount = 0;
+local int headerCount = 0;
+local int totalEntries = 0;
+
+typedef struct{
+    int pointerCount;
+    int blockStart<format=hex>;
+}HeaderBlock;
+
+typedef struct{
+    Printf("Pointer Count: %u\n", HeaderData[i].pointerCount);
+    for(j=0;j<HeaderData[i].pointerCount;j++){
+        int bonePointer<format=hex,optimize=false>;
+        if(bonePointer[j] != 0xFFFFFFFF){
+            Printf("%x, %u, %u\n", bonePointer[j], j, i);
+        };
+    };
+}PointerBlock;
+
+typedef struct{
+    byte datum;
+}UnknData;
+
+typedef struct {
+    uint blockType; 
+    uint blockCount; 
+    uint blockSize; 
+} BlockHeader;
+
+typedef struct{
+    uint unknown[2];
+}AnimDataUnkn;
+
+typedef struct{
+    short unkn1;
+    short unkn2;
+    short unkn3;
+    short unkn4;
+}MiniDataBlock1;
+
+typedef struct{
+    float unkn1;
+    float unkn2;
+    float unkn3;
+    float unkn4;
+}MiniDataBlock2;
+
+typedef struct{
+    short unkn1;
+    short unkn2;
+    short unkn3;
+    short unkn4;
+    short unkn5;
+    short unkn6;
+}MiniDataBlock3;
+
+string readShort(MiniDataBlock1 &p){
+    string s;
+    if(p.unkn1 != 0){
+        SPrintf( s, "%f", (float)(((p.unkn1/16384.0)*3.14)*57.2958));
+    }
+    else
+        SPrintf( s, "%f", 0);
+    return s;
+}
+
+struct AnimDataBlock;
+struct AnimDataBlock{
+    BlockHeader Header;
+    Printf("%08x - %d\n",Header.blockType,Header.blockCount);
+    local int i;
+    if (Header.blockType == 0x80000002){AnimDataUnkn AninDataUnk;};
+    if (Header.blockType == 0x80000001){AnimDataUnkn AninDataUnk;};
+    if (Header.blockType == 0x80000002)for(i=0;i<Header.blockCount;i++)AnimDataBlock Main<optimize = false,bgcolor=0xFF0000, name="unkMainBlock">;//White
+    else if (Header.blockType == 0x80000001)for(i=0;i<Header.blockCount;i++)AnimDataBlock Main<optimize = false,bgcolor=0xFF0000, name="unkMainBlock">;//White
+    else if (Header.blockType == 0x80000008)for(i=0;i<Header.blockCount;i++)AnimDataBlock Main<optimize = false,bgcolor=0xFF0000, name="unkMainBlock">;//White
+    else if (Header.blockType == 0x800000F8)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x80000040)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x80000100)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x80000140)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x800001B8)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x800001C0)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x800001F8)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x800001FF)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x80000038)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x8000003F)for(i=0;i<Header.blockCount;i++)AnimDataBlock Sub<optimize = false,bgcolor=0x00FF00, name="unkSubBlock">;
+    else if (Header.blockType == 0x80120001)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120002)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120004)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120008)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120010)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120020)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120040)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120080)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80120100)for(i=0;i<Header.blockCount;i++)MiniDataBlock1 Mini<optimize = false,bgcolor=0x0000FF, read=readShort, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220001)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220002)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220004)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220008)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220010)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220020)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220040)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220080)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80220100)for(i=0;i<Header.blockCount;i++)MiniDataBlock2 Mini<optimize = false,bgcolor=0xFF00FF, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130001)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130002)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130004)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130008)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130010)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130020)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130040)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130080)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else if (Header.blockType == 0x80130100)for(i=0;i<Header.blockCount;i++)MiniDataBlock3 Mini<optimize = false,bgcolor=0xFFFF00, name="unkMiniBlock">;
+    else for(i=0;i<(Header.blockSize-12);i++)UnknData Data<optimize = false,bgcolor=0x000000, name="unkBlock">; // sType
+    
+};
+
+
+
+
+
+while (ReadInt() != 0)
+{
+    Printf("---Read: %d\n", ReadByte());
+    headerCount++;
+    FSkip(skip);
+    skipCount += 8;
+    Printf("---Headers: %d\n", headerCount);
+    Printf("---Skip: %d\n", skip);
+    
+}
+skipCount *= -1;
+Printf("---Minus skipCount: %d\n", skipCount);
+FSkip(skipCount);
+HeaderBlock HeaderData[headerCount];
+int unknZero;
+int firstEntryStart<format=hex>;
+//for (i = 0;i<headerCount;i++)
+//{
+//    PointerBlock PointerData[HeaderData[i].pointerCount];
+//}
+for(i=0;i<headerCount;i++){
+    PointerBlock PointerData<optimize=false>;
+};
+
+
+
+//Calc number of non-null entries
+for (i = 0;i<headerCount;i++)
+{
+    for (j = 0;j<HeaderData[i].pointerCount;j++)
+    {
+        if(PointerData[i].bonePointer[j] != -1)
+        {
+            totalEntries++;
+            AnimDataBlock animData;
+        }
+    }
+}
+//AnimDataBlock animData[totalEntries];
+Printf("---Anims: %d\n", totalEntries);
