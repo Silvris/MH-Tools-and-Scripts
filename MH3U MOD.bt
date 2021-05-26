@@ -1,0 +1,193 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+const float WEIGHT_MULTIPLIER = 1.0/1023;
+const float WEIGHT_MULTIPLIER2 = 1.0/255.0;
+const float C8S = 0.0078125;
+typedef struct{
+    float x;
+    float y;
+    float z;
+}Vector3;
+
+typedef struct{
+    long id<format=hex>;
+    ubyte version2;
+    ubyte version;
+    short boneCount;
+    short meshCount;
+    short materialCount;
+    long vertexCount;
+    long vertexIds;
+    long faceCount;
+    long vertexBufferSize;
+    long secondBufferSize;
+    if(version<190){
+        long unknCount;
+    }
+    long groupCount;
+    if((version<190)||(version>220)){
+        long boneMapCount;
+    }
+    long boneOffset<format=hex>;
+    long groupOffset<format=hex>;
+    long materialNamesOffset<format=hex>;
+    long meshOffset<format=hex>;
+    long VertexOffset<format=hex>;
+    if(version<190){
+        long vertex2Offset<format=hex>;
+    }
+    long FacesOffset<format=hex>;
+    long unknOffset<format=hex>;
+    if(version<190){
+        long unkOffset2<format=hex>;
+        Vector3 bbsphereposition;
+        float bspereradius;
+        Vector3 bbmin;
+        long unkn;
+        Vector3 bbmax;
+        long unkn;
+        
+    }
+    byte unkn2[60];
+}Header;
+
+typedef struct{
+    short unkn1;
+    ubyte parentId;
+    ubyte child;
+    float unkn2;
+    float length;
+    float x;
+    float y;
+    float z;
+}Bone;
+
+typedef struct{
+    struct C{
+        float r1;
+        float r2;
+        float r3;
+        float r4;
+    }c[4];
+}LMatrix;
+
+typedef struct{
+    struct D{
+        float r1;
+        float r2;
+        float r3;
+        float r4;
+    }c[4];
+}AMatrix;
+
+typedef struct{
+    char name[128];
+}materials;
+
+typedef struct{
+    hfloat x;
+    hfloat y;
+    hfloat z;
+}Position;
+
+typedef struct{
+    byte normalX;
+    byte normalY;
+    byte normalZ;
+    byte normalW;
+}Normal;
+
+typedef struct{
+    byte tangentX;
+    byte tangentY;
+    byte tangentZ;
+    byte tangentW;
+}Tangent;
+
+typedef struct{
+    hfloat uvX;
+    hfloat uvY;
+}Uv;
+
+typedef struct{
+    long weight;
+    local hfloat weight1 = (weight & 0x3ff)*WEIGHT_MULTIPLIER;
+    local hfloat weight2 = ((weight>>10) & 0x3ff)*WEIGHT_MULTIPLIER;
+    local hfloat weight3 = ((weight>>20) & 0x3ff)*WEIGHT_MULTIPLIER;
+    local hfloat weight4 = 1-weight3-weight2-weight1;
+}BaseWeight;
+
+typedef struct{
+    byte weight2_0;
+    byte weight2_1;
+    byte weight2_2;
+    byte weight2_3;
+    local float weight5 = ((float)weight2_0)*WEIGHT_MULTIPLIER2;
+    local float weight6 = ((float)weight2_1)*WEIGHT_MULTIPLIER2;
+    local float weight7 = ((float)weight2_2)*WEIGHT_MULTIPLIER2;
+    local float weight8 = ((float)weight2_3)*WEIGHT_MULTIPLIER2;
+}ExtendedWeight;
+
+typedef struct{
+    ubyte red;
+    ubyte green;
+    ubyte blue;
+    ubyte alpha;
+}Colour;
+
+
+typedef struct{
+    Position position;
+    Normal normal;
+    Tangent tangent;
+    Uv uv;
+    BaseWeight baseweight;
+    ExtendedWeight extendedweight;
+    ubyte bone[8];
+}VertexBuffer;
+
+typedef struct{
+    ushort unkn;
+    ushort VertexCount;
+    byte id; //0 is visible at all times; 1 is visible when drawn; 2 is visible when on the back; ...
+    ushort materialIdx;
+    ubyte lod;
+    short unkn2;
+    ubyte blockSize;
+    byte unkn3;
+    uint VertexSub;
+    uint VertexOffset <format=hex>;
+    uint blocktype <format=hex>;
+    ulong FaceOffset <format=hex>;
+    ulong FaceCount;
+    ulong bonremapid;
+    ulong unkn1;
+    ulong unkn4;
+    ulong unkn5<format=hex>;
+}MeshPartV2;
+
+Header head<bgcolor=0x00ff00>;
+FSeek(head.materialNamesOffset);
+materials materialNames[head.materialCount]<bgcolor=0xcc00cc>;
+if(head.boneCount>0){
+FSeek(head.boneOffset);
+Bone Bones[head.boneCount]<bgcolor=0x330066>;
+LMatrix LMatrices[head.boneCount]<bgcolor=0x660033>;
+AMatrix AMatrices[head.boneCount]<bgcolor=0x663333>;
+};
+FSeek(head.groupOffset);
+float unknGroupStuff[head.groupCount*8]<bgcolor=0xAAAA33>;
+FSeek(head.meshOffset);
+if(head.version==230){
+    MeshPartV2 meshPart[head.meshCount]<bgcolor=0xff0000>;
+};
