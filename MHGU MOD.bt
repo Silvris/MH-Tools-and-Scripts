@@ -166,6 +166,31 @@ typedef struct{
     float unknFloats[7];
 }unknGroupStruct;
 
+typedef struct {
+  SHORT Mesh_Type;
+  SHORT Vertex_Count;
+  BYTE Group_Index;
+  BYTE Unknown_1; // ? usually 0
+  BYTE Material_Index;
+  BYTE Level_of_Detail_Index; // 0x00 = Null | 0x01 = HightPoly | 0x02 = MidPoly | 0x03 = LowPoly | 0xFF = Shadow
+  BYTE class; // 0x09 = Hidden? | 0x11 = Hands | 0x21 = Visible
+  BYTE mesh_class; // either body mesh, or hand mesh
+  BYTE Vertex_Stride;
+  BYTE Render_Mode;
+  LONG Vertex_Position;
+  LONG Vertex_Offset;
+  LONG Vertex_Format; //block type
+  LONG Face_Position;
+  LONG Face_Count;
+  LONG Face_Offset;
+  BYTE bone_id_start;
+  BYTE unique_boneids;
+  SHORT Mesh_Index;
+  SHORT Min_Index;
+  SHORT Max_Index;
+  LONG Hash; // ?unique ID give to distinguish each mesh? ixion-saga leaves this data blank
+}MESH;
+
 typedef struct{
     ushort unkn;
     ushort VertexCount;
@@ -204,6 +229,10 @@ typedef struct{
     };
 }FaceData;
 
+typedef struct(uint length){
+    byte vertex[length];
+}BlindVertex;
+
 Header head<bgcolor=0x00ff00>;
 FSeek(head.materialNamesOffset);
 materials materialNames[head.materialCount]<bgcolor=0xcc00cc>;
@@ -217,13 +246,23 @@ FSeek(head.groupOffset);
 unknGroupStruct unknGroupStuff[head.groupCount]<bgcolor=0xAAAA33>;
 FSeek(head.meshOffset);
 if(head.version==212){
-    MeshPartV2 meshPart[head.meshCount]<bgcolor=0xff0000>;
+    MESH meshPart[head.meshCount]<bgcolor=0xff0000>;
 };
+/*
 for (i=0;i<head.meshCount;i++){
     faceCount = faceCount + meshPart[i].FaceCount;
 };
+
 Printf("Face Count = %u", faceCount);
 for (i=0;i<head.meshCount;i++){
     FSeek(head.FacesOffset+(meshPart[i].FaceOffset*2));
     FaceData Faces;
+};*/
+FSeek(head.VertexOffset);
+for(i=0;i<head.meshCount;i++){
+    struct Vertexes{
+        for(j=0;j<meshPart[i].Vertex_Count;j++){
+            BlindVertex vertexes(meshPart[i].Vertex_Stride);
+        };
+    }vertexes;
 };
