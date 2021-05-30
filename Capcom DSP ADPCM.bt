@@ -15,21 +15,62 @@ typedef struct{
     uint uint2;
 }uintBlock;
 
+typedef enum<byte>{
+    January,
+    February,
+    March,
+    April,
+    May,
+    June,
+    July,
+    August,
+    September,
+    October,
+    November,
+    December
+}MonthEnum;
+
+typedef struct{
+    char tIME[4];
+    uint size;
+    short Year;
+    MonthEnum Month;
+    byte Day;
+    byte Hour;
+    byte Minute;
+    byte Second;
+    byte NULL;
+}tIME;
+
+string readTIME(tIME &t){
+    string s;
+    SPrintf(s, "%s %u, %u - %02u:%02u:%02u", EnumToString(t.Month), t.Day, t.Year, t.Hour, t.Minute, t.Second);
+    return s;
+}
+
 uint DPSWMagic<bgcolor=0x000000>;
-uint unkn;
+if(DPSWMagic == 1464881988){
+    //file is currently in LIT endian
+    BigEndian();
+    //doing it like this means we preserve the user's default endian, while still reading the file properly
+};
+uint unkn;//loop flag?
 uint fileLength<bgcolor=0xFFFFFF>;
 uint unkn4;
 uint loopBegin<bgcolor=0xFF0000>;
 uint loopEnd<bgcolor=0x0000FF>;
-uint unkn2;
+uint numChannels;
 uint totalSamples<bgcolor=0xF00FF0>;
 uint totalSamples2<bgcolor=0xF00FF0>;
 uint unkn5;
 uint sampleRate;
 uint unkn3[16];
 uint buffer[5];
-byte ADPCM[fileLength-128-392];
+/*
 char mrkrMagic[4];
 uint mrkrLength;
 uintBlock mrkrBlock[mrkrLength/8];
-uint tIMEBlock[4];
+
+*///not always present in files, so commented out
+FSeek(fileLength-16);
+tIME timeBlock<read=readTIME>;

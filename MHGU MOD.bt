@@ -177,12 +177,12 @@ typedef struct {
   BYTE mesh_class; // either body mesh, or hand mesh
   BYTE Vertex_Stride;
   BYTE Render_Mode;
-  LONG Vertex_Position;
-  LONG Vertex_Offset;
-  LONG Vertex_Format; //block type
-  LONG Face_Position;
-  LONG Face_Count;
-  LONG Face_Offset;
+  ULONG Vertex_Position;
+  ULONG Vertex_Offset;
+  ULONG Vertex_Format<format=hex>; //block type
+  ULONG Face_Position;
+  ULONG Face_Count;
+  ULONG Face_Offset;
   BYTE bone_id_start;
   BYTE unique_boneids;
   SHORT Mesh_Index;
