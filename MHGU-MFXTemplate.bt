@@ -1,0 +1,86 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int i;
+local int j;
+typedef struct{
+    byte MFX0[4];
+    short reserved_4;
+    short reserved_6;
+    int field_8;
+    int entryCount;
+    int stringTableOffset;
+    int field_14;
+}MFXHeader;
+
+struct MFXEntryOffsets{
+    uint offset[Header.entryCount-1];
+};
+struct MFXStringTable{
+    string entryName;
+};
+typedef struct{
+    string name;
+}Name;
+
+typedef struct{
+    uint strOffset;
+    uint u1 : 6;
+    uint comp_type : 5;
+    uint comp_count : 11;
+    uint base_off : 9;
+    uint instancing : 1;
+    returnAdd = FTell();
+    FSeek(Header.stringTableOffset+strOffset);
+    Name name<optimize=false>;
+    FSeek(returnAdd);
+}Attribute;
+
+string readAttribute(Attribute &a){
+    return a.name.name;
+};
+
+struct MFXEntry{
+    uint string1;
+    uint string2;
+    local uint returnAdd = FTell();
+    FSeek(Header.stringTableOffset+string1);
+    string name1;
+    FSeek(Header.stringTableOffset+string2);
+    string name2;
+    FSeek(returnAdd);
+    uint field_8_a : 6;
+    uint field_8_b : 16;
+    uint field_8_c : 12;
+    uint field_C;
+    uint field_10;
+    ushort attributeCount;
+    ushort unkn;
+    if(field_8_a == 9){
+        uint unkn;
+        Attribute attribute[attributeCount]<read=readAttribute,optimize=false>;
+    };
+    
+};
+
+string readStrings(MFXEntry &p){
+    string s;
+    SPrintf( s, "%s, %s", (string)p.name1,(string)p.name2);
+    return s;
+}
+
+MFXHeader Header;
+MFXEntryOffsets EntryOffsets;
+for(i=0;i<Header.entryCount-1;i++){
+    FSeek(EntryOffsets.offset[i]);
+    MFXEntry Entry<read=readStrings>;
+};

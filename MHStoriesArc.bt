@@ -1,0 +1,65 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+uint createJamcrc(char name[]){
+    local uchar result[5];
+    local uint a1;
+    local uint a2;
+    local uint a3;
+    local uint a4;
+    ChecksumAlgArrayBytes(CHECKSUM_CRC32,result,name,Strlen(name),"",-1,-1);
+    a1 = result[0];
+    a2 = result[1];
+    a3 = result[2];
+    a4 = result[3];
+    return 0xFFFFFFFF ^ ((a1<<24) | (a2<<16) | (a3<< 8) | (a4));
+}
+
+string getExt(int hash){
+    switch(hash){
+        case createJamcrc("rModel") & 0x7FFFFFFF:
+            return ".mod";
+        case createJamcrc("rTexture") & 0x7FFFFFFF:
+            return ".tex";
+        default:
+            string s;
+            SPrintf(s, ".%x", hash);
+            return s;
+    };
+};
+
+local int i;
+typedef struct{
+    char ARC0[4];
+    short version;
+    short fileCount;
+}Header;
+
+typedef struct{
+    char FilePath[128];
+    uint ExtensionHash;
+    int compSize;
+    int uncompSize : 24;
+    int unkn : 8;
+    int offset;
+}SwitchFileEntry;
+
+string ReadEntry(SwitchFileEntry &s){
+    return s.FilePath + getExt(s.ExtensionHash);
+};
+
+Header header;
+struct FileEntries{
+    for(i=0;i<header.fileCount;i++){
+        SwitchFileEntry file<read=ReadEntry>;
+    };
+}files;

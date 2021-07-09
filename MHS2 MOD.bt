@@ -14,7 +14,6 @@ local int i;
 local int j;
 local int faceCount;
 local int faceIncrement;
-local int faceTotal;
 const float WEIGHT_MULTIPLIER = 1.0/1023;
 const float WEIGHT_MULTIPLIER2 = 1.0/255.0;
 const float C8S = 0.0078125;
@@ -24,7 +23,7 @@ typedef struct{
     float z;
 }Vector3;
 
-typedef struct{
+struct Header{
     long id<format=hex>;
     ubyte version;
     ubyte version2;
@@ -32,27 +31,27 @@ typedef struct{
     short meshCount;
     short materialCount;
     long vertexCount;
-    long vertexIds;
     long faceCount;
+    long vertexIds;
     long vertexBufferSize;
     long secondBufferSize;
     if(version<190){
         long unknCount;
     }
-    long groupCount;
+    uint64 groupCount;
     if((version<190)||(version>220)){
-        long boneMapCount;
+        uint64 boneMapCount;
     }
-    long boneOffset<format=hex>;
-    long groupOffset<format=hex>;
-    long materialNamesOffset<format=hex>;
-    long meshOffset<format=hex>;
-    long VertexOffset<format=hex>;
+    uint64 boneOffset<format=hex>;
+    uint64 groupOffset<format=hex>;
+    uint64 materialNamesOffset<format=hex>;
+    uint64 meshOffset<format=hex>;
+    uint64 VertexOffset<format=hex>;
     if(version<190){
         long vertex2Offset<format=hex>;
     }
-    long FacesOffset<format=hex>;
-    long EOFOffset<format=hex>;
+    uint64 FacesOffset<format=hex>;
+    uint64 unknOffset<format=hex>;
     if(version<190){
         long unkOffset2<format=hex>;
         Vector3 bbsphereposition;
@@ -63,9 +62,9 @@ typedef struct{
         long unkn;
         
     }
-    float unkn2[12];
-    uint unkn3[5];
-}Header;
+    float unkn1[11];
+    byte unkn2[24];
+};
 
 typedef struct{
     short unkn1;
@@ -101,22 +100,10 @@ typedef struct{
 }materials;
 
 typedef struct{
-    float x;
-    float y;
-    float z;
-}FPosition;
-
-typedef struct{
     hfloat x;
     hfloat y;
     hfloat z;
-}HPosition;
-
-typedef struct{
-    short x;
-    short y;
-    short z;
-}SPosition;
+}Position;
 
 typedef struct{
     byte normalX;
@@ -157,97 +144,21 @@ typedef struct{
 }ExtendedWeight;
 
 typedef struct{
-    byte weight0_0;
-    byte weight0_1;
-    local float weight1 = ((float)weight0_0)*WEIGHT_MULTIPLIER;
-    local float weight2 = ((float)weight0_1)*WEIGHT_MULTIPLIER;
-}ShortWeight;
-
-typedef struct{
-    hfloat bone1;
-    hfloat bone2;
-}HBones;
-
-typedef struct{
-    byte bone;
-    byte weight;
-}BoneWeightPair;
-
-typedef struct{
     ubyte red;
     ubyte green;
     ubyte blue;
     ubyte alpha;
 }Colour;
 
-typedef struct{
-    SPosition position;
-    short weight;
-    Normal normal;
-    short bone1;
-    short bone2;
-}IASkinBridge2wt;
 
 typedef struct{
-    SPosition position;
-    hfloat bone;
+    Position position;
     Normal normal;
     Tangent tangent;
-    Uv uv1;
-}IASkinTB1wt;
-
-typedef struct{
-    SPosition position;
-    short weight;
-    Normal normal;
-    Tangent tangent;
-    Uv uv1;
-    hfloat bones[2];
-}IASkinTB2wt;
-
-typedef struct{
-    SPosition position;
-    ShortWeight weights;
-    Normal normal;
-    Tangent tangent;
-    Uv uv1;
-    HBones bones;
-    Colour color;
-}IASkinTBC2wt;
-
-typedef struct{
-    FPosition position;
-    Normal normal;
-    Tangent tangent;
-    Uv uv1;
-    Uv uv2;
-}IANonSkinTBN;
-
-typedef struct(uint length){
-    byte vertex[length];
-}BlindVertex;
-
-typedef struct(uint blockType,uint stride){
-    switch(blockType){
-        case 0xdb7da014:
-            IASkinBridge2wt vertex;
-            break;
-        case 0xa8fab018:
-            IASkinTB1wt vertex;
-            break;
-        case 0xc31f201d:
-            IASkinTB2wt vertex;
-            break;
-        case 0xa013501f:
-            IASkinTBC2wt vertex;
-            break;
-        case 0x5e7f2030:
-            IANonSkinTBN vertex;
-            break;
-        default:
-            BlindVertex vertex(stride);
-            break;
-    };
+    Uv uv;
+    BaseWeight baseweight;
+    ExtendedWeight extendedweight;
+    ubyte bone[8];
 }VertexBuffer;
 
 typedef struct{
@@ -278,6 +189,7 @@ typedef struct {
   SHORT Min_Index;
   SHORT Max_Index;
   LONG Hash; // ?unique ID give to distinguish each mesh? ixion-saga leaves this data blank
+  INT64 Unkn;
 }MESH;
 
 typedef struct{
@@ -314,9 +226,14 @@ typedef struct{
 typedef struct{
     faceIncrement = 0;
     while(faceIncrement<meshPart[i].Face_Count){
+        Printf("%i %i\n",i, faceIncrement);
         tristrip StripData<optimize=false>;
     };
 }FaceData;
+
+typedef struct(uint length){
+    byte vertex[length];
+}BlindVertex;
 
 Header head<bgcolor=0x00ff00>;
 FSeek(head.materialNamesOffset);
@@ -330,7 +247,7 @@ AMatrix AMatrices[head.boneCount]<bgcolor=0x663333>;
 FSeek(head.groupOffset);
 unknGroupStruct unknGroupStuff[head.groupCount]<bgcolor=0xAAAA33>;
 FSeek(head.meshOffset);
-if(head.version==212){
+if(head.version==214){
     MESH meshPart[head.meshCount]<bgcolor=0xff0000>;
 };
 FSeek(head.VertexOffset);
@@ -338,7 +255,7 @@ struct Vertices{
     for(i=0;i<head.meshCount;i++){
         struct Vertexes{
             for(j=0;j<meshPart[i].Vertex_Count;j++){
-                VertexBuffer vertexes(meshPart[i].Vertex_Format,meshPart[i].Vertex_Stride);
+                BlindVertex vertexes(meshPart[i].Vertex_Stride);
             };
         }vertexes;
     };
@@ -347,9 +264,9 @@ struct Vertices{
 for (i=0;i<head.meshCount;i++){
     faceCount = faceCount + meshPart[i].Face_Count;
 };
-FSeek(head.FacesOffset);
 Printf("Face Count = %u", faceCount);
+FSeek(head.FacesOffset);
 for (i=0;i<head.meshCount;i++){
-
     FaceData Faces;
 };*/
+

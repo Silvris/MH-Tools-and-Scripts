@@ -93,7 +93,7 @@ def texLoadARGB(data, texList):
         Format = bs.readByte()
         unkn3 = bs.readUShort()
         Length = Width*Height
-        if Version == 160:
+        if Version == 160 or Version == 163:
             Length = bs.readUInt()
         if Debug:
             print("Endian: {endian}".format(endian="Big" if bigEndian else "Little"))
@@ -103,6 +103,23 @@ def texLoadARGB(data, texList):
             print("Height: {}".format(Height))
             print("Length: {}".format(Length))
         MipOffsets = []
+        if Version == 158:
+            #DMC4SE
+            for i in range(MipMapCount):
+                MipOffsets.append(bs.readUInt())
+            if Format == 19:
+                pix = rapi.imageDecodeDXT(bs.readBytes(int(Length/2)),Width,Height,noesis.FOURCC_DXT1)
+            elif Format == 20:
+                pix = rapi.imageDecodeDXT(bs.readBytes(Length),Width,Height,noesis.FOURCC_DXT3)
+            elif Format == 23:
+                pix = rapi.imageDecodeDXT(bs.readBytes(Length),Width,Height,noesis.FOURCC_DXT5)
+            elif Format == 25:
+                pix = rapi.imageDecodeDXT(bs.readBytes(int(Length/2)),Width,Height,noesis.FOURCC_BC4)
+            elif Format == 31:
+                pix = rapi.imageDecodeDXT(bs.readBytes(Length),Width,Height,noesis.FOURCC_BC5)
+            else:
+                print(Format)
+            texList.append(NoeTexture("MTFTex", Width, Height, pix, noesis.NOESISTEX_RGBA32))
         if Version == 160:
             for i in range(MipMapCount):
                 MipOffsets.append(bs.readUInt())
@@ -111,10 +128,7 @@ def texLoadARGB(data, texList):
                 blockWidth = blockHeight = 1
                 WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
                 HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
-                maxBlockHeight = 8 if Width < 256 or Height <= 256 else 16
-                maxBlockHeight = 4 if Width < 128 or Height <= 128 else maxBlockHeight
-                maxBlockHeight = 2 if Width < 64 or Height <= 64 else maxBlockHeight
-                maxBlockHeight = 1 if Width < 32 or Height <= 32 else maxBlockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
                 pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, 4, maxBlockHeight)
                 pix = rapi.imageDecodeRaw(pix,Width,Height,"b8g8r8a8",2)
             elif Format == 19:
@@ -122,10 +136,7 @@ def texLoadARGB(data, texList):
                 blockSize = 8
                 WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
                 HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
-                maxBlockHeight = 8 if Width < 256 or Height <= 256 else 16
-                maxBlockHeight = 4 if Width < 128 or Height <= 128 else maxBlockHeight
-                maxBlockHeight = 2 if Width < 64 or Height <= 64 else maxBlockHeight
-                maxBlockHeight = 1 if Width < 32 or Height <= 32 else maxBlockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
                 pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
                 pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_DXT1)
             elif Format == 23:
@@ -133,21 +144,15 @@ def texLoadARGB(data, texList):
                 blockSize = 16
                 WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
                 HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
-                maxBlockHeight = 8 if Width < 256 or Height <= 256 else 16
-                maxBlockHeight = 4 if Width < 128 or Height <= 128 else maxBlockHeight
-                maxBlockHeight = 2 if Width < 64 or Height <= 64 else maxBlockHeight
-                maxBlockHeight = 1 if Width < 32 or Height <= 32 else maxBlockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
                 pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
-                pix = rapi.imageDecodeDXT(pix, Width, Height, noesis.NOESISTEX_DXT5)
+                pix = rapi.imageDecodeDXT(pix, Width, Height, noesis.FOURCC_DXT5)
             elif Format == 25:
                 blockWidth = blockHeight = 4
                 blockSize = 8
                 WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
                 HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
-                maxBlockHeight = 8 if Width < 256 or Height <= 256 else 16
-                maxBlockHeight = 4 if Width < 128 or Height <= 128 else maxBlockHeight
-                maxBlockHeight = 2 if Width < 64 or Height <= 64 else maxBlockHeight
-                maxBlockHeight = 1 if Width < 32 or Height <= 32 else maxBlockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
                 pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
                 pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_ATI1)
             elif Format == 31:
@@ -155,12 +160,80 @@ def texLoadARGB(data, texList):
                 blockSize = 16
                 WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
                 HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
-                maxBlockHeight = 8 if Width < 256 or Height <= 256 else 16
-                maxBlockHeight = 4 if Width < 128 or Height <= 128 else maxBlockHeight
-                maxBlockHeight = 2 if Width < 64 or Height <= 64 else maxBlockHeight
-                maxBlockHeight = 1 if Width < 32 or Height <= 32 else maxBlockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
                 pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
                 pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_ATI2)
+            else:
+                print(Format)
+            texList.append(NoeTexture("MTFTex", Width, Height, pix, noesis.NOESISTEX_RGBA32))
+        if Version == 163:
+            #MHS 2
+            for i in range(MipMapCount):
+                MipOffsets.append(bs.readUInt())
+            currentOff = bs.tell()
+            bs.seek(currentOff + MipOffsets[0])
+            if Format == 7:
+                blockWidth = blockHeight = 1
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, 4, maxBlockHeight)
+                pix = rapi.imageDecodeRaw(pix,Width,Height,"b8g8r8a8",2)
+            elif Format == 9:
+                blockWidth = blockHeight = 1
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, 4, maxBlockHeight)
+                pix = rapi.imageDecodeRaw(pix,Width,Height,"r8g8b8a8",2)
+            elif Format == 19:
+                blockWidth = blockHeight = 4
+                blockSize = 8
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
+                pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_DXT1)
+            elif Format == 20:
+                blockWidth = blockHeight = 4
+                blockSize = 8
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
+                pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_BC1)
+            elif Format == 23:
+                blockWidth = blockHeight = 4
+                blockSize = 16
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
+                pix = rapi.imageDecodeDXT(pix, Width, Height, noesis.FOURCC_DXT5)
+            elif Format == 25:
+                blockWidth = blockHeight = 4
+                blockSize = 8
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
+                pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_ATI1)
+            elif Format == 31:
+                blockWidth = blockHeight = 4
+                blockSize = 16
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
+                pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_ATI2)
+            elif Format == 55:
+                blockWidth = blockHeight = 4
+                blockSize = 16
+                WidthInBlocks = (Width + (blockWidth - 1)) // blockWidth
+                HeightInBlocks = (Height + (blockHeight - 1)) // blockHeight
+                maxBlockHeight = rapi.callExtensionMethod("untile_blocklineargob_blockheight", Height, 4)
+                pix = rapi.callExtensionMethod("untile_blocklineargob", bs.readBytes(Length), WidthInBlocks, HeightInBlocks, blockSize, maxBlockHeight)
+                pix = rapi.imageDecodeDXT(pix,Width,Height,noesis.FOURCC_BC7)
             else:
                 print(Format)
             texList.append(NoeTexture("MTFTex", Width, Height, pix, noesis.NOESISTEX_RGBA32))
@@ -236,6 +309,7 @@ def texLoadARGB(data, texList):
         assert Version == 9 #according to https://github.com/IcySon55/Kuriimu/blob/master/src/image/image_mt/MobileMTTexSupport.cs this whole structure should be mostly inverted, so unless this file is somehow Big Endian, we need version check
         #noticed that any other version of the format also uses version 9, so there will be problems
         #also, only works with iOS textures. Android uses BC but has some issues within the data. The two are identical header-wise
+        #even Gunpla Warfare uses version 9, so look out for that as well apparently
         if Format == 4:
             #PVRTC4
             length = int(Width*Height/2)

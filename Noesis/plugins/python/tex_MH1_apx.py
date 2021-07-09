@@ -27,10 +27,9 @@ def readAPX(data, off):
     specialUnkn = bs.readUInt()
     NULL0 = bs.readUInt64()
     if bitDepth == 4:
-        if(int(totalPixels/2) != (fileSize-52-paletteLength)):
-            ImageData = bs.readBytes(totalPixels)#false 4bpp
-        else:    
-            ImageData = bs.readBytes(int(totalPixels/2))
+        ImageData = []
+        for i in range(totalPixels*2):
+            ImageData.append(bs.readBits(4))
     else:
         ImageData = bs.readBytes(totalPixels)
     paletteData = bs.readBytes(paletteLength)

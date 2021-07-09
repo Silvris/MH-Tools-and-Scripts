@@ -1,0 +1,68 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int i;
+typedef struct{
+    long id<format=hex>;
+    uint unkn;
+    uint materialCount;
+    uint textureCount;
+    uint64 unkn;
+    uint64 textureOffset<format=hex>;
+    uint64 materialOffset<format=hex>;
+}Header;
+
+typedef struct{
+    // fileTypeCode for tex is [(zlib.crc32("rTexture".encode()) ^ 0xffffffff) & 0x7fffffff]
+    uint fileTypeCode<format=hex>;
+    byte unkn2[20];
+    char path[128];
+}Texture;
+typedef struct{
+    uint headId<format=hex>;
+    uint null;
+	//for example (zlib.crc32("NPC_Mt__4".encode()) ^ 0xffffffff) & 0x7fffffff
+    uint materialNameHash<format=hex>;
+    uint matSize;
+    uint shaderHash<format=hex>;// 62B2D175 - BSSolid
+    uint skinid<format=hex>;//B81391A8 - DSZTestWrite
+    short unkn4;
+    ubyte floatArrOff;
+    ubyte unkn5[9];
+    ubyte unkn6;
+    ubyte unkn7[19];
+    uint64 startAddr<format=hex>;
+    uint64 unkn8;
+}Material;
+
+typedef struct{
+    ubyte type;
+    ubyte unkn1;
+    ubyte unkn2;
+    ubyte unkn3;
+    uint32 x<format=hex>;
+    //not so shure if this is correct
+    uint texIdx;
+    uint unkn5;
+}Resbind;
+
+struct MaterialDat(uint index){
+    byte data[Material1[index].matSize];
+};
+
+Header Header1<bgcolor=0x0000ff>;;
+Texture Texture1[Header1.textureCount]<bgcolor=0x00ff00>;
+Material Material1[Header1.materialCount]<bgcolor=0xff0000>;
+for(i=0;i<Header1.materialCount;i++){
+    FSeek(Material1[i].startAddr);
+    MaterialDat materialData(i)<optimize=false,bgcolor=0xFF00FF>;
+};
