@@ -95,26 +95,49 @@ class Entry:
     def setOffset(self, offset):
         self.offset = offset
 
+class LogEntry:
+    def __init__(self,path,index):
+        self.path = path
+        self.index = index
+
 def writeArchive(outFile):
+    if not os.path.exists(importPath+"orderlog.txt"):
+        print("Log file not present!")
+        return 0
+    logfile = open(importPath+"orderlog.txt",'r')
+    logentries = []
+    lineIndex = 0
+    for line in logfile:
+        path = line.replace("\n","")
+        logentries.append(LogEntry(path,lineIndex))
+        lineIndex += 1
+    logfile.close()
     outFileDir = Path(importPath).rglob("*.*")
-    fileCount = len(list(outFileDir))
+    fileCount = len(logentries)
     outFile.write(b'ARCC') #just go ahead and write it out to the encrypted version
     writeUShort(outFile,7)
     writeUShort(outFile,fileCount)
     fileDec = bytearray()
     entries = []
     for path in Path(importPath).rglob("*.*"):
-        name = str(Path(path).relative_to(importPath)).split(".")
-        namePath = name[0]
-        extHash = getExtension("."+name[1])
-        print(namePath)
-        inFile = open(path,'rb')
-        uBuffer = inFile.read()
-        decompSize = len(uBuffer)
-        buffer = zlib.compress(uBuffer)
-        compSize = len(buffer)
-        entries.append(Entry(namePath,extHash,compSize,decompSize,buffer))
-    currentOff = (4 + (fileCount * 0x90)) + (32768- ((4 + (fileCount * 0x90)) % 32768 )) #basically, just make sure it's far from the header
+        if ".txt" not in str(path):
+            name = str(Path(path).relative_to(importPath)).split(".")
+            namePath = name[0]
+            extHash = getExtension("."+name[1])
+            print(namePath)
+            inFile = open(path,'rb')
+            uBuffer = inFile.read()
+            decompSize = len(uBuffer)
+            buffer = zlib.compress(uBuffer)
+            compSize = len(buffer)
+            index = -1
+            for lentry in logentries:
+                if lentry.path == namePath+"."+name[1]:
+                    index = lentry.index
+            if index != -1:
+                entries.insert(index,Entry(namePath,extHash,compSize,decompSize,buffer))
+    currentOff = (8 + (fileCount * 0x90)) + (32768- ((8 + (fileCount * 0x90)) % 32768 )) #basically, just make sure it's far from the header
+    startingOff = currentOff
     for entry in entries:
         exportString(fileDec,entry.name)
         writeUIntToByteArray(fileDec,entry.extHash)
@@ -124,13 +147,14 @@ def writeArchive(outFile):
         entry.setOffset(currentOff)
         currentOff += entry.compSize
         #print(startingOff)
+    appendArrayToOffset(fileDec,startingOff-8) #8 bytes already present in the file
     for entry in entries:
-        appendArrayToOffset(fileDec,entry.offset)
         fileDec.extend(entry.buffer)
     padToECB(fileDec)
     fileEnc = bytearray()
     fileEnc.extend(endianness_reversal(cipher.encrypt(endianness_reversal(fileDec))))
     outFile.write(fileEnc)
+    outFile.close()
 
 
 

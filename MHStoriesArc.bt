@@ -53,6 +53,10 @@ typedef struct{
     int offset;
 }SwitchFileEntry;
 
+typedef struct(uint length){
+    byte data[length];
+}FileData;
+
 string ReadEntry(SwitchFileEntry &s){
     return s.FilePath + getExt(s.ExtensionHash);
 };
@@ -63,3 +67,8 @@ struct FileEntries{
         SwitchFileEntry file<read=ReadEntry>;
     };
 }files;
+
+for(i=0;i<header.fileCount;i++){
+    FSeek(files.file[i].offset);
+    FileData fileData(files.file[i].compSize);
+};

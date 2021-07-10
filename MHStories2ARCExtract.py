@@ -261,6 +261,8 @@ class Entry:
         self.offset = offset
 
 def extractARC(inFile,fileCount):
+    basePath = inFile.name.split('.')[0]+'/'
+    logFile = open(basePath+"orderlog.txt",'w')
     entries = []
     for _ in range(fileCount):
         nameArray = inFile.read(128)
@@ -277,11 +279,11 @@ def extractARC(inFile,fileCount):
         cFile = inFile.read(entry.compSize)
         dFile = zlib.decompress(cFile)
         #create name
-        basePath = inFile.name.split('.')[0]+'/'
         dirPath = os.path.split(entry.name)[0]
         #print(dirPath, 1)
         if(dirPath != ''):
             os.makedirs(basePath+dirPath,exist_ok=True)
+        logFile.write(entry.name+getExtension(entry.extHash)+"\n")
         finalName = basePath + entry.name + getExtension(entry.extHash)
         oFile = open(finalName,'wb')
         oFile.write(dFile)
