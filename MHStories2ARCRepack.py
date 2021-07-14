@@ -601,30 +601,24 @@ def writeArchive(importPath,outFile):
         logentries.append(LogEntry(path,lineIndex))
         lineIndex += 1
     logfile.close()
-    outFileDir = Path(importPath).rglob("*.*")
     fileCount = len(logentries)
     outFile.write(b'ARCC') #just go ahead and write it out to the encrypted version
     writeUShort(outFile,7)
     writeUShort(outFile,fileCount)
     fileDec = bytearray()
     entries = []
-    for path in Path(importPath).rglob("*.*"):
-        if ".txt" not in str(path) and ".dds" not in str(path):
-            name = str(Path(path).relative_to(importPath)).split(".")
-            namePath = name[0]
-            extHash = getExtension("."+name[1])
-            print(namePath)
-            inFile = open(path,'rb')
-            uBuffer = inFile.read()
-            decompSize = len(uBuffer)
-            buffer = zlib.compress(uBuffer)
-            compSize = len(buffer)
-            index = -1
-            for lentry in logentries:
-                if lentry.path == namePath+"."+name[1]:
-                    index = lentry.index
-            if index != -1:
-                entries.insert(index,Entry(namePath,extHash,compSize,decompSize,buffer))
+    for entry in logentries:
+        name = entry.path.split(".")
+        namePath = name[0]
+        extHash = getExtension("."+name[1])
+        print(namePath)
+        fullPath = importPath + "/" + entry.path
+        inFile = open(fullPath,'rb')
+        uBuffer = inFile.read()
+        decompSize = len(uBuffer)
+        buffer = zlib.compress(uBuffer)
+        compSize = len(buffer)
+        entries.insert(entry.index,Entry(namePath,extHash,compSize,decompSize,buffer))
     currentOff = (8 + (fileCount * 0x90)) + (32768- ((8 + (fileCount * 0x90)) % 32768 )) #basically, just make sure it's far from the header
     startingOff = currentOff
     for entry in entries:
