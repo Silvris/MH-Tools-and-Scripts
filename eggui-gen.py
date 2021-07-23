@@ -40,8 +40,8 @@ unqPattern = json.load(open("egg_unique_pattern.eup.json",'r'))["root"]["mpArray
 buddies = json.load(open("buddyPath.bdypa.json",'r'))["root"]["mpArray"]["mpArray"]
 baseInfo = json.load(open("monster_base_info.mbi.json",'r'))["root"]["mpArray"]["mpArray"]
 
-egg1 = Image.open("cmn_eggicon01_ID.png")
-egg2 = Image.open("cmn_eggicon02_ID.png")
+egg1 = Image.open("cmn_eggicon01_ID.tga")
+egg2 = Image.open("cmn_eggicon02_ID.tga")
 
 raceToPattern = {
     1: 0,
