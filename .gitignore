@@ -338,3 +338,11 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+[Ee]ggs/
+buddyPath.bdypa.json
+cmn_eggicon01_ID.png
+cmn_eggicon02_ID.png
+egg_base_color.ebc.json
+egg_unique_pattern.eup.json
+monster_base_info.mbi.json
