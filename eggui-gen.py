@@ -103,6 +103,7 @@ for i in range(len(buddies)):
         try:
             eggColor = next(item for item in colors if item["mMonsterRace"] == i)
         except:
+            print(buddies[i]["mKeyString"])
             eggColor = None
         if eggColor != None:
             baseColor = [eggColor["mBase[0]"],eggColor["mBase[1]"],eggColor["mBase[2]"]]

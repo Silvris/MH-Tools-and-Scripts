@@ -11,6 +11,9 @@
 //   History: 
 //------------------------------------------------
 uint magic;
+if(magic == 1413830656){
+    BigEndian();
+};
 uint version : 12;
 uint unkn1 : 12;
 uint unusued1 : 4;

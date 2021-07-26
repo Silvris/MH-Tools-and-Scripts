@@ -1,4 +1,5 @@
 import PyInstaller.__main__
+import PyInstaller.config
 import os
 import sys
 
@@ -11,8 +12,11 @@ os.chdir(dname)
 
 files = [
     f"MHStories2ARCExtract.py",
-    f"MHStories2ARCRepack.py"
+    f"MHStories2ARCRepack.py",
+    f"btBinaryRepackUnpack.py"
 ]
 
+PyInstaller.config.CONF["workpath"] = dname + "/dist"
+
 for f in files:
-    PyInstaller.__main__.run([f, "--onefile"])
+    PyInstaller.__main__.run([f, "--onefile", "--distpath", dname+"/dist"])

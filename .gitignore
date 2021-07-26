@@ -349,3 +349,10 @@ monster_base_info.mbi.json
 cmn_eggicon01_ID.tga
 cmn_eggicon02_ID.tga
 eggs.rar
+MonsterBaseInfo.txt
+gene_name_eng.gmd
+gene_table.gtb.json
+MHS2-Genes.csv
+skill_table.skt.json
+SkillExp_eng.gmd
+SkillName_eng.gmd
