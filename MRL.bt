@@ -13,6 +13,9 @@
 local int i;
 typedef struct{
     long id<format=hex>;
+    if(id == 1297239040){
+        BigEndian();
+    };
     uint unkn;
     uint materialCount;
     uint textureCount;
