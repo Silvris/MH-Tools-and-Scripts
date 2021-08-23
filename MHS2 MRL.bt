@@ -28,20 +28,20 @@ typedef struct{
     char path[128];
 }Texture;
 typedef struct{
-    uint headId<format=hex>;
+    uint headId<format=hex>;//this is probably some form of JAMCRC of "Material", can look in detail later
     uint null;
 	//for example (zlib.crc32("NPC_Mt__4".encode()) ^ 0xffffffff) & 0x7fffffff
-    uint materialNameHash<format=hex>;
+    uint materialNameHash<format=hex>;//^
     uint matSize;
     uint shaderHash<format=hex>;// 62B2D175 - BSSolid
     uint skinid<format=hex>;//B81391A8 - DSZTestWrite
-    short unkn4;
-    ubyte floatArrOff;
-    ubyte unkn5[9];
-    ubyte unkn6;
-    ubyte unkn7[19];
+    uint RSType<format=hex>;
+    uint unkn1<format=hex>;
+    uint unkn2<format=hex>;
+    ubyte unkn7[16];
+    uint secondaryMatSize;
     uint64 startAddr<format=hex>;
-    uint64 unkn8;
+    uint64 secondaryStartAddr<format=hex>;
 }Material;
 
 typedef struct{
@@ -59,10 +59,20 @@ struct MaterialDat(uint index){
     byte data[Material1[index].matSize];
 };
 
+struct SecondaryDat(uint index){
+    byte data[Material1[index].secondaryMatSize];
+};
+
 Header Header1<bgcolor=0x0000ff>;;
 Texture Texture1[Header1.textureCount]<bgcolor=0x00ff00>;
 Material Material1[Header1.materialCount]<bgcolor=0xff0000>;
 for(i=0;i<Header1.materialCount;i++){
     FSeek(Material1[i].startAddr);
     MaterialDat materialData(i)<optimize=false,bgcolor=0xFF00FF>;
+};
+for(i=0;i<Header1.materialCount;i++){
+    if(Material1[i].secondaryStartAddr){
+        FSeek(Material1[i].secondaryStartAddr);
+        SecondaryDat secondaryData(i)<optimize=false,bgcolor=0x0000FF>;
+    };
 };
