@@ -1,0 +1,160 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef enum<ubyte>{
+    NoElement,
+    Fire,
+    Water,
+    Thunder,
+    Ice,
+    Dragon
+}Element;
+
+typedef enum<ubyte>{
+    NoAilment,
+    Poison,
+    Paralysis,
+    Sleep,
+    Blast,
+}Ailment;
+
+typedef enum<byte>{
+    NoneAmmo = -1,
+    NormalLv1 = 0,
+    NormalLv2 = 3,
+    PierceLv1 = 4,
+    PierceLv2 = 5,
+    PierceLv3 = 6,
+    Unkn = 7,
+    CragLv1 = 8,
+    CragLv2 = 9,
+    ClusterLv1 = 10,
+    ClusterLv2 = 11,
+    FireShot = 12,
+    WaterShot = 13,
+    ThunderShot = 14,
+    FreezeShot = 15,
+    DragonShot = 16,
+    PoisonLv1 = 19,
+    PoisonLv2 = 20,
+    ParaLv1 = 21,
+    SleepLv1 = 22,
+    SleepLv2 = 23,
+    BlastShot = 25,
+    SlicingShot = 27,
+    ExhaustLv2 = 28
+}AmmoTypes;
+
+typedef enum<byte>{
+    NoneType = -1,
+    Rapid1 = 0,
+    Rapid2 = 1,
+    Rapid3 = 2,
+    Rapid4 = 3,
+    Rapid5 = 4
+}ChargeType;
+
+struct WeaponData_MH4U {
+	int16 model;
+	int16 sharpness;
+	int32 price;//actual purchase price, wow
+	int16 damage;
+	byte defense;
+	byte affinity;
+	Element elementType;
+	byte elementDamage;
+	Ailment ailmentType;
+	byte ailmentDamage;//signed byte, Awaken will take the absolute value of the byte in order to apply hidden elements
+	byte slots;
+	int16 unk2;
+	byte rarity;
+	int16 sortOrder;
+	int16 unk3;
+};
+
+struct WeaponData_MH4UBow {
+	int16 model;
+    int16 unkn;
+	byte rarity;
+	byte unk1;
+    int16 unkn2;
+	int32 price;
+	int16 damage;
+	byte defense;
+	byte recoil;
+	byte slots;
+	byte affinity;
+	byte sortOrder;
+	byte ammoConfig; //Charge Attack
+	byte elementType; //Bows
+	byte elementDamage; //Bows
+	ChargeType ammoSpecial1;
+	ChargeType ammoSpecial2; 
+	ChargeType ammoSpecial3;
+	ChargeType ammoSpecial4;
+	ChargeType ammoSpecial5;
+	byte unk2[4];
+	byte ammoUsable1;//Bow: Coatings
+	byte ammoUsable2;//Bow: Coating Enhancements
+	byte ammoUsable3;
+	byte ammoUsable4;
+	byte ammoUsable5;
+	uint unk3;
+    //byte unkns[16];
+};
+
+struct WeaponData_MH4UBowgun {
+	int16 model;
+    int16 unkn;
+	byte rarity;
+	byte unk1;
+    int16 unkn2;
+	int32 price;
+	int16 damage;
+	byte defense;
+	byte recoil;
+	byte slots;
+	byte affinity;
+	byte sortOrder;
+	byte ammoConfig; //Charge Attack
+	byte elementType; //Bows
+	byte elementDamage; //Bows
+	AmmoTypes ammoSpecial1; //Rapid Fire, Crouch Fire, Charge Attack
+	AmmoTypes ammoSpecial2; //FF: Nothing
+	AmmoTypes ammoSpecial3;
+	AmmoTypes ammoSpecial4;
+	AmmoTypes ammoSpecial5;
+	byte unk2[4];
+	byte ammoUsable1;//Bow: Coatings
+	byte ammoUsable2;//Bow: Coating Enhancements
+	byte ammoUsable3;
+	byte ammoUsable4;
+	byte ammoUsable5;
+	uint unk3;
+    //byte unkns[16];
+};
+
+FSeek(0xE70854);//E59278 E8BFF8 E7179C(LightbreakBlade) E7158C(Grandglory Blade)
+WeaponData_MH4U GreatSword[246];
+WeaponData_MH4U SwordAndShield[247];
+WeaponData_MH4U Hammer[247];
+WeaponData_MH4U Lance[216];
+WeaponData_MH4U LongSword[227];
+WeaponData_MH4U SwitchAxe[198];
+WeaponData_MH4U Gunlance[221];
+WeaponData_MH4U DualBlades[229];
+WeaponData_MH4U HuntingHorn[185];
+WeaponData_MH4U InsectGlaive[160];
+WeaponData_MH4U ChargeBlade[125];
+WeaponData_MH4UBowgun HeavyBowgun[157];
+WeaponData_MH4UBowgun LightBowgun[185];
+WeaponData_MH4UBow Bow[206];
