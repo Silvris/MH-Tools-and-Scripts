@@ -1,0 +1,98 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct{
+    int16 modelIdMale;
+    int16 modelIdFemale;
+    byte maleEq : 1;
+    byte femaleEq : 1;
+    byte bladeEq : 1;
+    byte gunEq : 1;
+    byte unk1Eq : 1;
+    byte unk2Eq : 1;
+    byte unk3Eq : 1;
+    byte unk4Eq : 1;
+    byte rarity;
+    byte unk1[2];
+    int32 zennyCost;         // Double of what smithy says
+    byte defense;
+    byte fireRes;
+    byte waterRes;
+    byte thunderRes;
+    byte dragonRes;
+    byte iceRes;
+    byte slots;
+    byte unk;
+    byte armorSpheresTier1;
+    byte unk2[9];
+    byte skillId01;
+    byte skillPts01;
+    byte skillId02;
+    byte skillPts02;
+    byte skillId03;
+    byte skillPts03;
+    byte skillId04;
+    byte skillPts04;
+    byte skillId05;
+    byte skillPts05;
+}ArmorData;
+
+typedef struct{
+    int16 model;
+    byte rarity;
+    byte unk1;
+    int32 price;
+    int16 sharpness;
+    int16 damage;
+    byte defense;
+    byte affinity;
+    byte elementalType;
+    byte elementalDamage;
+    byte ailmentType;
+    byte ailmentDamage;
+    byte slots;
+    byte unk2;
+    byte weaponVar;
+    byte sortOrder;
+    byte unk3[2];
+}BlademasterWeaponData;
+
+typedef struct {
+	int16 model;
+	byte rarity;
+	byte unk1;
+	int32 price;
+	int16 damage;
+	byte defense;
+	byte recoil;
+	byte slots;
+	byte affinity;
+	int16 sortOrder;
+	byte ammoConfig; //Charge Attack
+	byte elementType; //Bows
+	byte elementDamage; //Bows
+	byte reload;
+	byte unk2[4];
+	byte ammoUsable1;
+	byte ammoUsable2;
+	byte ammoUsable3;
+	byte ammoUsable4;
+}GunnerWeaponData;
+
+local int Mode = 1; //0 = MHP2G 1 = MHFU US (dunno if Europe is much different)
+local int Offset = 0x0;
+if(Mode == 1) Offset = 0x2B04;
+FSeek(0x155A94 + Offset);
+BlademasterWeaponData bmWeapons[1149];
+GunnerWeaponData gnWeapons[354];
+FSeek(0x15ED04 + Offset);
+ArmorData armors[2096];

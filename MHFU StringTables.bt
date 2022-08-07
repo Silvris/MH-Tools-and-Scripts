@@ -1,0 +1,40 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int i;
+typedef struct(int fileStart){
+    int offset;
+    local int ret = FTell();
+    FSeek(offset + fileStart);
+    string data;
+    FSeek(ret);
+}OffsetString;
+
+string ReadOffsetString(OffsetString &o){
+    return o.data;
+};
+
+typedef struct(int fileStart){
+    do{
+        OffsetString sData(fileStart)<read=ReadOffsetString,optimize=false>;
+    }while(ReadInt() != -1);
+}StringTable;
+
+struct Header{
+    int table_count;
+    int unkn;//might be versioning? set to 8 on every EN file I've looked at
+    int table_offsets[table_count]<optimize=false>;
+    for(i=0;i<table_count;i++){
+        FSeek(table_offsets[i]);
+        StringTable table(table_offsets[i]);
+    };
+}header;
