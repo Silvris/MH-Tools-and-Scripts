@@ -10,6 +10,47 @@
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
+SetStartingAddress(0x08801A4C);
+typedef struct{
+    short red;
+    short orange;
+    short yellow;
+    short green;
+    short blue;
+    short white;
+    short purple;
+}Sharpness;
+
+typedef struct{
+    SetBackColor( 0x0000FFFF );
+    int16 Item_ID;
+    ushort quantity0;
+    int16 Item_ID;
+    ushort quantity1;
+    int16 Item_ID;
+    ushort quantity2;
+    ushort Item_ID;
+    ushort quantity3;
+}CreateEntry;
+
+typedef struct{
+    SetBackColor( 0xFF0000FF );
+    int16 Item_ID;
+    ushort quantity0;
+    int16 Item_ID;
+    ushort quantity1;
+    int16 Item_ID;
+    ushort quantity2;
+    ushort Item_ID;
+    ushort quantity3;
+    uint16 upgradesTo0;
+    uint16 upgradesTo1;
+    uint16 upgradesTo2;
+    uint16 upgradesTo3;
+    uint16 upgradesTo4;
+    uint16 upgradesTo5;
+} UpgradeEntry;
+
 typedef struct{
     int16 modelIdMale;
     int16 modelIdFemale;
@@ -23,7 +64,7 @@ typedef struct{
     byte unk4Eq : 1;
     byte rarity;
     byte unk1[2];
-    int32 zennyCost;         // Double of what smithy says
+    int32 sellPrice;         // Double of what smithy says
     byte defense;
     byte fireRes;
     byte waterRes;
@@ -46,12 +87,58 @@ typedef struct{
     byte skillPts05;
 }ArmorData;
 
+typedef struct {
+        byte typeLevel;
+}GunlanceShelling;
+
+string ReadShelling(GunlanceShelling &s){
+    local string st;
+    local int typ = s.typeLevel % 3;
+    local int level = (s.typeLevel / 3) + 1;
+    local string type = "";
+    if(typ == 1) type = "Long ";
+    else if (typ == 2) type = "Wide ";
+    else type = "Normal ";
+    SPrintf(st, "%s%i", type, level);
+    return st;
+};
+
+typedef union {
+    byte raw;
+    enum<byte> {
+        WBR = 0,
+        WYR,
+        WGR,
+        WBY,
+        WGY,
+        WGB,
+        PBR,
+        PYR,
+        PBY,
+        PGY,
+        PGB,
+        PGR,
+        WGC,
+        WYC,
+        WCB,
+        WCR,
+        PGC,
+        PYC,
+        PCB,
+        PCR
+    }HuntingHornNotes;
+    GunlanceShelling shelling<read=ReadShelling>;
+}WeaponVariable;
+
+
+
 typedef struct{
     int16 model;
     byte rarity;
     byte unk1;
     int32 price;
-    int16 sharpness;
+    byte sharpnessTable;
+    byte sharpnessLength;
     int16 damage;
     byte defense;
     byte affinity;
@@ -60,16 +147,24 @@ typedef struct{
     byte ailmentType;
     byte ailmentDamage;
     byte slots;
-    byte unk2;
+    WeaponVariable WepValue;
     byte weaponVar;
-    byte sortOrder;
+    ubyte sortOrder;
     byte unk3[2];
 }BlademasterWeaponData;
+
+struct WeaponValuesBMDualAttrib{
+  ushort  WeaponID;
+  ushort  AttribID_A;
+  ushort  Value_A;
+  ushort  AttribID_B;
+  ushort  Value_B;
+};
 
 typedef struct {
 	int16 model;
 	byte rarity;
-	byte unk1;
+	byte modTable;
 	int32 price;
 	int16 damage;
 	byte defense;
@@ -82,17 +177,106 @@ typedef struct {
 	byte elementDamage; //Bows
 	byte reload;
 	byte unk2[4];
-	byte ammoUsable1;
-	byte ammoUsable2;
-	byte ammoUsable3;
-	byte ammoUsable4;
+	ubyte ammoUsable1;
+    ubyte ammoUsable2;
+    ubyte ammoUsable3;
+    ubyte ammoUsable4;
 }GunnerWeaponData;
 
-local int Mode = 1; //0 = MHP2G 1 = MHFU US (dunno if Europe is much different)
+struct BowgunModLvls{
+  uint    Atk_Increase;
+  float   Speed;
+  float   Distance_Devi; // These 2 deal with drop off....somehow...
+  float   Dropoff_Speed; //
+  float   Horizontal_Devi;
+  float   EFX_Timing;
+};
+
+struct BowgunShots{
+  uchar   Norm1;
+  uchar   Norm2;
+  uchar   Norm3;
+  uchar   Pierce1;
+  uchar   Pierce2;
+  uchar   Pierce3;
+  uchar   Pellet1;
+  uchar   Pellet2;
+  uchar   Pellet3;
+  uchar   Crag1;
+  uchar   Crag2;
+  uchar   Crag3;
+  uchar   Clust1;
+  uchar   Clust2;
+  uchar   Clust3;
+  uchar   Flame;
+  uchar   Water;
+  uchar   Thunder;
+  uchar   Freeze;
+  uchar   Dragon;
+  uchar   Recov1;
+  uchar   Recov2;
+  uchar   Poison1;
+  uchar   Poison2;
+  uchar   Para1;
+  uchar   Para2;
+  uchar   Sleep1;
+  uchar   Sleep2;
+  uchar   Tranq;
+  uchar   Paint;
+  uchar   Demon;
+  uchar   Armor;
+};
+
+struct BowCharges{
+  uchar   ChargeLv1;
+  uchar   ChargeLv2;
+  uchar   ChargeLv3;
+  uchar   ChargeLv4;
+};
+
+struct Mod2WepType{
+  uchar   Type;
+};
+
+local int Mode = 0; //0 = MHP2G 1 = MHFU US (dunno if Europe is much different)
 local int Offset = 0x0;
 if(Mode == 1) Offset = 0x2B04;
 FSeek(0x155A94 + Offset);
 BlademasterWeaponData bmWeapons[1149];
-GunnerWeaponData gnWeapons[354];
+GunnerWeaponData null;
+GunnerWeaponData gnWeapons[353];
 FSeek(0x15ED04 + Offset);
 ArmorData armors[2096];
+FSeek(0x174ABC + Offset);
+Sharpness sharpness[40];
+FSeek(0x145684 + Offset);
+CreateEntry creates[1503];
+FSeek(0x14B474 + Offset);
+UpgradeEntry upgrades[1503];
+FSeek(0x173F38 + Offset);
+Mod2WepType models[553];
+FSeek(0x175208 + Offset);
+WeaponValuesBMDualAttrib dualAttr[15];
+
+FSeek(0x1741A8);
+
+struct{
+  SetBackColor(cRed);
+  BowgunShots ShotTable[58];
+} BGSHOTTBL<name="Bowgun Shot Table">;
+
+//------------------------------------------------
+
+FSeek(0x1748E8);
+
+struct{
+  SetBackColor(cDkRed);
+  BowCharges ChargeTable[117];
+} BOWCHRGTBL<name="Bow Charge Table">;
+
+FSeek(0x174D18);
+struct{
+    struct{
+        BowgunModLvls levels[5];
+    }modTable[4];
+}ModLevels;

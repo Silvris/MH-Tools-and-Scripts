@@ -24,7 +24,9 @@ string ReadOffsetString(OffsetString &o){
 };
 
 typedef struct(int fileStart){
+    local int stringCount = 0;
     do{
+        stringCount++;
         OffsetString sData(fileStart)<read=ReadOffsetString,optimize=false>;
     }while(ReadInt() != -1);
 }StringTable;

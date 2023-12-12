@@ -1,0 +1,53 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Script File
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+//   History: 
+//------------------------------------------------
+local int FileNum;
+local string BaseFileName;
+local string FileName;
+local int NewFileNum;
+local int Index;
+local int StringBlock;
+local int outputIndex = -1;
+string RemoveNewline(string line){
+    local int j;
+    local string s;
+    for(j=0;j<Strlen(line);j++){
+        if(line[j] == 10){
+            s += "\\n";
+        }
+        else{
+            s += line[j];
+        };
+    };
+    return s;
+};
+
+void MHFUStringBlockExtract (){
+    RunTemplate("MHFU StringTables.bt");
+    FileNum = GetFileNum();
+    BaseFileName = GetFileName();
+    for(StringBlock=0;StringBlock<header.table_count;StringBlock++){
+        FileNew("Text",true);
+        NewFileNum = GetFileNum();
+        FileSelect(FileNum);
+        for(Index=0;Index < header.table[StringBlock].stringCount; Index++){
+
+            outputIndex = Index;
+            FPrintf(NewFileNum,"%d,%s\n", outputIndex, RemoveNewline(header.table[StringBlock].sData[Index].data));
+        };
+        FileSelect(NewFileNum);
+        SPrintf(FileName, "%s-Block-%i.txt",BaseFileName, StringBlock);
+        FileSave(FileName);
+        FileClose();
+        FileSelect(FileNum);
+    };
+};
+
+MHFUStringBlockExtract();

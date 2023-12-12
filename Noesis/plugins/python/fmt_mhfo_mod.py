@@ -24,7 +24,7 @@ def registerNoesisTypes():
     handle = noesis.register("Monster Hunter Frontier Models", ".fmod")
     noesis.setHandlerTypeCheck(handle, noepyCheckType)
     noesis.setHandlerLoadModel(handle, noepyLoadFMOD)
-    noesis.setTypeSharedModelFlags(handle,noesis.NMSHAREDFL_WANTTANGENTS4R)
+    noesis.setTypeSharedModelFlags(handle,noesis.NMSHAREDFL_WANTTANGENTS4)
     noesis.setHandlerWriteModel(handle, noepyWriteFMOD)
     #noesis.addOption(handle, "-fmot", "Load Animations from File", noesis.OPTFLAG_WANTARG) does nothing for now
     noesis.addOption(handle, "-noTex", "Skip Loading textures from PNG", noesis.OPTFLAG_WANTARG)
@@ -643,12 +643,13 @@ def writeTangents(mesh,bs):
     bs.writeInt(len(mesh.tangents))
     length = 12 + (16 * len(mesh.tangents))
     bs.writeInt(length)
-    for tangent in mesh.tangents:
-        print(tangent)
-        bs.writeFloat(float(tangent[0]))
-        bs.writeFloat(float(tangent[1]))
-        bs.writeFloat(float(tangent[2]))
-        bs.writeFloat(float(tangent[3]))
+    for tanVec in mesh.tangents:
+        print(tanVec)
+        bs.writeFloat(float(tanVec[0][1]))
+        bs.writeFloat(float(tanVec[1][1]))
+        bs.writeFloat(float(tanVec[2][1]))
+        bs.writeFloat(float(tanVec[3][1]))
+    return length
 
 def WriteMeshBlock(mdl, bs):
     bs.writeInt(2)
@@ -670,6 +671,7 @@ def WriteMeshBlock(mdl, bs):
             blockCount += 2
         if len(mesh.tangents) > 0:
             blockCount += 1 #may not matter since Noesis auto-generates tangents
+            #print(mesh.tan4[0])
         blockCount += 1 #material remap
         blockCount += 1 #material map
         bs.writeInt(blockCount)

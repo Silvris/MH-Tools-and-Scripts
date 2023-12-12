@@ -1,0 +1,28 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct{
+    local uint R <hidden=true> = ReadUByte(FTell());
+    local uint G <hidden=true> = ReadUByte(FTell()+1);
+    local uint B <hidden=true> = ReadUByte(FTell()+2);
+    local uint64 color <hidden=true> = (B<<16) | (G<<8) | (R);
+    Printf("%x %x %x %x\n",R,G,B,color);
+    SetBackColor(color);
+    byte Red;
+    byte Green;
+    byte Blue;
+    SetBackColor(cNone);
+}Color;
+
+float unknown;
+uint armorCount;
+Color colors[armorCount]<optimize=false>;

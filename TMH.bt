@@ -1,0 +1,49 @@
+//------------------------------------------------
+//--- 010 Editor v13.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct{
+    uint     DataSize;
+    uint     flag;
+    uint     ImageType;
+    ushort      width;
+    ushort      height;
+    local uint Width = width;
+    local uint Height = height;
+    local uint Length = Width*Height;
+    byte       Data[DataSize-16];
+}Gim_Data;
+
+typedef struct{
+    int     PaletteSize;
+    int     flag;
+    int     PaletteType; //3 - 32 bit color
+    int     ColorCount;
+    if(PaletteType == 3){
+        byte    data[ColorCount*4];
+    };
+}GIM_Palette;
+
+struct GIM_Image {
+  int       GIMsize;
+  int    GIMFlags[3];
+  Gim_Data GIMData<optimize=false>;
+  if(GIMData.ImageType == 3)
+  GIM_Palette GIMPalette<optimize=false>;
+};
+struct TMH_Header {
+  char     ResID[8];
+  int       numGIMImage;
+  int       pad0;
+  GIM_Image gims[numGIMImage]<optimize=false>;
+};
+
+TMH_Header header;

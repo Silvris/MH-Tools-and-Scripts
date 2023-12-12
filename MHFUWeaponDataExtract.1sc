@@ -1,0 +1,295 @@
+//------------------------------------------------
+//--- 010 Editor v13.0 Script File
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+//   History: 
+//------------------------------------------------
+local int FileNum;
+local string BaseFileName;
+local string FileName;
+local int NewFileNum;
+local int Index;
+local uint dualAttrs[15];
+local int outputIndex = -1;
+local int j;
+local int hasDualAttr = -1;
+local int element;
+local int elementDamage;
+/*
+Dual Attr bitflag
+1 - Sleep
+2 - Poison
+4 - Paralysis
+16 - Water
+32 - Fire
+64 - Thunder
+128 - Ice
+256 - Dragon
+*/
+int GetElementFromBitflag(int bitflag){
+    switch(bitflag){
+        case 1:
+            return 8;
+        case 2:
+            return 6;
+        case 4:
+            return 7;
+        case 8:
+            return 0;
+        case 16:
+            return 2;
+        case 32:
+            return 1;
+        case 64:
+            return 3;
+        case 128:
+            return 5;
+        case 256:
+            return 4;
+        default:
+            return 0;
+    };
+}
+
+void MHFUSharpnessDataExtract (){
+    RunTemplate("MHFU Weapons-Armor.bt");
+    FileNum = GetFileNum();
+    //initialize dualAttr array
+    for(Index = 0; Index < 15; Index++){
+        dualAttrs[Index] = dualAttr[Index].WeaponID;
+        Printf("%i\n", dualAttrs[Index]);
+    };
+    FileNew("Text",true);
+    NewFileNum = GetFileNum();
+    FPrintf(NewFileNum, "Index,Red,Orange,Yellow,Green,Blue,White,Purple\r\n");
+    FileSelect(FileNum);
+    for(Index = 0; Index < 40; Index++){
+        FPrintf(NewFileNum, "%i,%i,%i,%i,%i,%i,%i,%i\r\n", Index + 1, sharpness[Index].red, sharpness[Index].orange, sharpness[Index].yellow, sharpness[Index].green, sharpness[Index].blue, sharpness[Index].white, sharpness[Index].purple);
+    };
+    FileSelect(NewFileNum);
+    FileSave("sharpness.csv");
+    //FileClose();
+    FileSelect(FileNum);
+};
+
+void MHFUBladeWeaponDataExtract (){
+    RunTemplate("MHFU Weapons-Armor.bt");
+    FileNum = GetFileNum();
+    //initialize dualAttr array
+    for(Index = 0; Index < 15; Index++){
+        dualAttrs[Index] = dualAttr[Index].WeaponID;
+        Printf("%i\n", dualAttrs[Index]);
+    };
+    FileNew("Text",true);
+    NewFileNum = GetFileNum();
+    FileSelect(FileNum);
+    FPrintf(NewFileNum, "Index,WeaponType,Model,Rarity,BuyPrice,SharpnessTable,SharpnessLength,Attack,Defense,Affinity,ElementType,ElementAttack,Element2Type,Element2Attack,Slots,WeaponValue,SortValue\r\n");
+    for(Index = 0; Index < 1149; Index++){
+        hasDualAttr = -1;
+        FPrintf(NewFileNum,"%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,", 
+        Index + 1,
+        models[bmWeapons[Index].model].Type, 
+        bmWeapons[Index].model, 
+        bmWeapons[Index].rarity, 
+        bmWeapons[Index].price, 
+        bmWeapons[Index].sharpnessTable, 
+        bmWeapons[Index].sharpnessLength,
+        bmWeapons[Index].damage,
+        bmWeapons[Index].defense,
+        bmWeapons[Index].affinity);
+        //now change based on if dual attr
+        for(j=0;j<15;j++){
+            if(Index == dualAttrs[j]){
+                hasDualAttr = j;
+                break;
+            };
+        };
+        if(hasDualAttr != -1){
+            FPrintf(NewFileNum,"%i,%i,%i,%i,", GetElementFromBitflag(dualAttr[hasDualAttr].AttribID_A),dualAttr[hasDualAttr].Value_A, GetElementFromBitflag(dualAttr[hasDualAttr].AttribID_B),dualAttr[hasDualAttr].Value_B);
+        }
+        else{
+            //convert what they do have into our format
+            element = bmWeapons[Index].elementalType;
+            elementDamage = bmWeapons[Index].elementalDamage;
+            if(bmWeapons[Index].ailmentType != 0){
+                switch(bmWeapons[Index].ailmentType){
+                    case 1:
+                        element = 6;
+                        break;
+                    case 2:
+                        element = 7;
+                        break;
+                    case 3:
+                        element = 8;
+                        break;
+                };
+                elementDamage = bmWeapons[Index].ailmentDamage;
+            }
+            FPrintf(NewFileNum,"%i,%i,0,0,",element,elementDamage);
+        };
+        //now write the rest of the weapon
+        FPrintf(NewFileNum, "%i,%i,%i\r\n", bmWeapons[Index].slots,bmWeapons[Index].WepValue.raw,bmWeapons[Index].sortOrder);
+    };
+    FileSelect(NewFileNum);
+    FileSave("bwpd.csv");
+    //FileClose();
+    FileSelect(FileNum);
+};
+void MHFUGunnerWeaponDataExtract (){
+    RunTemplate("MHFU Weapons-Armor.bt");
+    FileNum = GetFileNum();
+    FileNew("Text",true);
+    NewFileNum = GetFileNum();
+    FileSelect(FileNum);
+    FPrintf(NewFileNum, "Index,WeaponType,Model,Rarity,BuyPrice,RecoilCharge,BulletChargeTable,ModTable,Attack,Defense,Affinity,ElementType,ElementAttack,Slots,Reload,AmmoUsable1,AmmoUsable2,AmmoUsable3,AmmoUsable4,SortValue\r\n");
+    for(Index = 0; Index < 353; Index++){
+        hasDualAttr = -1;
+        FPrintf(NewFileNum,"%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,", 
+        Index + 1,
+        models[gnWeapons[Index].model].Type, 
+        gnWeapons[Index].model, 
+        gnWeapons[Index].rarity, 
+        gnWeapons[Index].price, 
+        gnWeapons[Index].recoil, 
+        gnWeapons[Index].ammoConfig,
+        gnWeapons[Index].modTable,
+        gnWeapons[Index].damage,
+        gnWeapons[Index].defense,
+        gnWeapons[Index].affinity);
+        //convert what they do have into our format
+        FileSelect(FileNum);
+        element = gnWeapons[Index].elementType;
+        elementDamage = gnWeapons[Index].elementDamage;
+        FPrintf(NewFileNum,"%i,%i,",element,elementDamage);
+        //now write the rest of the weapon
+        FPrintf(NewFileNum, "%i,%i,%u,%i,%i,%i,%i\r\n", 
+        gnWeapons[Index].slots,
+        gnWeapons[Index].reload,
+        gnWeapons[Index].ammoUsable1,
+        gnWeapons[Index].ammoUsable2,
+        gnWeapons[Index].ammoUsable3,
+        gnWeapons[Index].ammoUsable4,
+        gnWeapons[Index].sortOrder);
+    };
+    FileSelect(NewFileNum);
+    FileSave("gwpd.csv");
+    //FileClose();
+    FileSelect(FileNum);
+};
+
+void ShotTableExtract(){
+    RunTemplate("MHFU Weapons-Armor.bt");
+    FileNum = GetFileNum();
+    FileNew("Text",true);
+    NewFileNum = GetFileNum();
+    FileSelect(FileNum);
+    FPrintf(NewFileNum, "Index,Normal1,Normal2,Normal3,Pierce1,Pierce2,Pierce3,Pellet1,Pellet2,Pellet3,Crag1,Crag2,Crag3,Clust1,Clust2,Clust3,Flame,Water,Thunder,Freeze,Dragon,Recover1,Recover2,Poison1,Poison2,Para1,Para2,Sleep1,Sleep2,Tranq,Paint,Demon,Armor\r\n");
+    for(Index = 0; Index < 58; Index++){
+        hasDualAttr = -1;
+        FPrintf(NewFileNum,"%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i\r\n", 
+            Index + 1,
+            BGSHOTTBL.ShotTable[Index].Norm1,
+            BGSHOTTBL.ShotTable[Index].Norm2,
+            BGSHOTTBL.ShotTable[Index].Norm3,
+            BGSHOTTBL.ShotTable[Index].Pierce1,
+            BGSHOTTBL.ShotTable[Index].Pierce2,
+            BGSHOTTBL.ShotTable[Index].Pierce3,
+            BGSHOTTBL.ShotTable[Index].Pellet1,
+            BGSHOTTBL.ShotTable[Index].Pellet2,
+            BGSHOTTBL.ShotTable[Index].Pellet3,
+            BGSHOTTBL.ShotTable[Index].Crag1,
+            BGSHOTTBL.ShotTable[Index].Crag2,
+            BGSHOTTBL.ShotTable[Index].Crag3,
+            BGSHOTTBL.ShotTable[Index].Clust1,
+            BGSHOTTBL.ShotTable[Index].Clust2,
+            BGSHOTTBL.ShotTable[Index].Clust3,
+            BGSHOTTBL.ShotTable[Index].Flame,
+            BGSHOTTBL.ShotTable[Index].Water,
+            BGSHOTTBL.ShotTable[Index].Thunder,
+            BGSHOTTBL.ShotTable[Index].Freeze,
+            BGSHOTTBL.ShotTable[Index].Dragon,
+            BGSHOTTBL.ShotTable[Index].Recov1,
+            BGSHOTTBL.ShotTable[Index].Recov2,
+            BGSHOTTBL.ShotTable[Index].Poison1,
+            BGSHOTTBL.ShotTable[Index].Poison2,
+            BGSHOTTBL.ShotTable[Index].Para1,
+            BGSHOTTBL.ShotTable[Index].Para2,
+            BGSHOTTBL.ShotTable[Index].Sleep1,
+            BGSHOTTBL.ShotTable[Index].Sleep2,
+            BGSHOTTBL.ShotTable[Index].Tranq,
+            BGSHOTTBL.ShotTable[Index].Paint,
+            BGSHOTTBL.ShotTable[Index].Demon,
+            BGSHOTTBL.ShotTable[Index].Armor
+        );
+
+    };
+    FileSelect(NewFileNum);
+    FileSave("bowgunShotTable.csv");
+    //FileClose();
+    FileSelect(FileNum);
+};
+
+void ModTableExtract(){
+    RunTemplate("MHFU Weapons-Armor.bt");
+    FileNum = GetFileNum();
+    FileNew("Text",true);
+    NewFileNum = GetFileNum();
+    FileSelect(FileNum);
+    FPrintf(NewFileNum, "Index,Table,Level,AttackIncrease,BulletSpeed,DistanceDeviation,BulletDropoff,HorizontalDeviation\r\n");
+    for(Index = 0; Index < 4; Index++){
+        for(j = 0; j < 5; j++){
+            FPrintf(NewFileNum,"%i,%i,%i,%i,%i,%i,%i,%i\r\n", 
+                (Index*4) + j + 1,
+                Index,
+                j,
+                ModLevels.modTable[Index].levels[j].Atk_Increase,
+                ModLevels.modTable[Index].levels[j].Speed,
+                ModLevels.modTable[Index].levels[j].Distance_Devi,
+                ModLevels.modTable[Index].levels[j].Dropoff_Speed,
+                ModLevels.modTable[Index].levels[j].Horizontal_Devi
+            );
+        };
+    };
+    FileSelect(NewFileNum);
+    FileSave("bowgunModTable.csv");
+    //FileClose();
+    FileSelect(FileNum);
+};
+void BowChargeExtract(){
+    RunTemplate("MHFU Weapons-Armor.bt");
+    FileNum = GetFileNum();
+    FileNew("Text",true);
+    NewFileNum = GetFileNum();
+    FileSelect(FileNum);
+    FPrintf(NewFileNum, "Index,Charge1,Charge2,Charge3,Charge4\r\n");
+    for(Index = 0; Index < 117; Index++){
+        for(j = 0; j < 1; j++){
+            FPrintf(NewFileNum,"%i,%i,%i,%i,%i\r\n", 
+                Index + 1,
+                BOWCHRGTBL.ChargeTable[Index].ChargeLv1,
+                BOWCHRGTBL.ChargeTable[Index].ChargeLv2,
+                BOWCHRGTBL.ChargeTable[Index].ChargeLv3,
+                BOWCHRGTBL.ChargeTable[Index].ChargeLv4
+            );
+        };
+    };
+    FileSelect(NewFileNum);
+    FileSave("bowChargeTable.csv");
+    //FileClose();
+    FileSelect(FileNum);
+};
+
+void MHFUGunnerExtraDataExtract (){
+    ShotTableExtract();
+    ModTableExtract();
+    BowChargeExtract();
+};
+
+//MHFUBladeWeaponDataExtract();
+//MHFUGunnerWeaponDataExtract();
+//MHFUSharpnessDataExtract();
+MHFUGunnerExtraDataExtract();
