@@ -47,37 +47,57 @@ def ReadGMDv2(inFile):
         assert magic == b"DMG\x00"
     else:
         assert magic == b"GMD\x00"
-    assert readUInt(inFile) == 66306
+    version = inFile.read(1)
+    inFile.read(3) #unknown
     inFile.read(4) #language
-    inFile.read(8) #hash + null
-    LabelCount = readUInt(inFile)
-    SectionCount = readUInt(inFile)
-    LabelSize = readUInt(inFile)
-    SectionSize = readUInt(inFile)
-    NameSize = readUInt(inFile)
-    Name = readNullTerminatedString(inFile)
-    entries = list()
-    for _ in range(LabelCount):
-        sectionID = readUInt(inFile)
-        inFile.read(12)#2 hashes (likely one for label and section) and CDCDCDCD filler
-        LabelOffset = readUInt64(inFile)
-        inFile.read(8)#"ListLink"
-        entries.append(LabelEntry(LabelOffset,sectionID))
-    for _ in range(0x100):
-        inFile.read(8)#legitimately don't understand what these are for
-    labelOffset = inFile.tell()
-    inFile.seek(labelOffset+LabelSize)
-    sections = list()
-    for _ in range(SectionCount):
-        sections.append(readNullTerminatedString(inFile))
-    GMDOut = dict()
-    for label in entries:
-        GMDOut[readAtOffset(inFile,labelOffset+label.offset)] = sections[label.sectionID]
-    
-    return GMDOut
+    if version == 3:
+        inFile.read(8) #hash + null
+        LabelCount = readUInt(inFile)
+        SectionCount = readUInt(inFile)
+        LabelSize = readUInt(inFile)
+        SectionSize = readUInt(inFile)
+        NameSize = readUInt(inFile)
+        Name = readNullTerminatedString(inFile)
+        entries = list()
+        for _ in range(LabelCount):
+            sectionID = readUInt(inFile)
+            inFile.read(12)#2 hashes (likely one for label and section) and CDCDCDCD filler
+            LabelOffset = readUInt64(inFile)
+            inFile.read(8)#"ListLink"
+            entries.append(LabelEntry(LabelOffset,sectionID))
+        for _ in range(0x100):
+            inFile.read(8)#legitimately don't understand what these are for
+        labelOffset = inFile.tell()
+        inFile.seek(labelOffset+LabelSize)
+        sections = list()
+        for _ in range(SectionCount):
+            sections.append(readNullTerminatedString(inFile))
+        GMDOut = dict()
+        for label in entries:
+            GMDOut[readAtOffset(inFile,labelOffset+label.offset)] = sections[label.sectionID]
+
+        return GMDOut
+    else:
+        Unkn0 = readUInt(inFile)
+        StringCount = readUInt(inFile)
+        GroupNameSize = readUInt(inFile)
+        Unkn = readUInt(inFile)
+        NameSize = readUInt(inFile)
+        Name = readNullTerminatedString(inFile)
+        Unkn2 = readUInt(inFile)
+        Unkn3 = readUInt(inFile)
+        GroupName = readNullTerminatedString(inFile)
+
+        GMDOut = dict()
+        for i in range(StringCount):
+            GMDOut[i] = readNullTerminatedString(inFile)
+
+        return GMDOut
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        sys.argv.append(r"E:\roms\3DS\DotNet 3DS Toolkit\MonsterHunter3Ultimate\RomFS\arc\ID\msg\GUI\font\Arm_eng.gmd")
     for i, path in enumerate(sys.argv):
         if i == 0:
             continue
