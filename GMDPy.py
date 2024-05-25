@@ -1,7 +1,7 @@
 import struct
 import sys
 
-BIGENDIAN = True
+BIGENDIAN = False
 
 def readUInt(file):
     if BIGENDIAN:
