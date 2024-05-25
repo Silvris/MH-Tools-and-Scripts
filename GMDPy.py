@@ -1,4 +1,5 @@
 import struct
+import sys
 
 def readUInt(file):
     return struct.unpack("I",file.read(4))[0]
@@ -33,7 +34,8 @@ class LabelEntry:
         self.sectionID = sectionID
 
 def ReadGMDv2(inFile):
-    assert inFile.read(4) == b"GMD\x00"
+    magic = inFile.read(4)
+    assert magic == b"GMD\x00"
     assert readUInt(inFile) == 66306
     inFile.read(4) #language
     inFile.read(8) #hash + null
@@ -63,3 +65,12 @@ def ReadGMDv2(inFile):
     
     return GMDOut
 
+
+if __name__ == "__main__":
+    for i, path in enumerate(sys.argv):
+        if i == 0:
+            continue
+        gmd = ReadGMDv2(open(path, 'rb'))
+        output = open(path.replace(".gmd", ".csv"), 'w')
+        output.writelines(["Key,Data\n", *[f"{key},{data}\n" for key, data in gmd.items()]])
+        output.close()

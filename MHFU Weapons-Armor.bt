@@ -23,6 +23,9 @@ typedef struct{
 
 typedef struct{
     SetBackColor( 0x0000FFFF );
+    uchar Type;
+    uchar Hide;
+    ushort EquipID;
     int16 Item_ID;
     ushort quantity0;
     int16 Item_ID;
@@ -31,6 +34,8 @@ typedef struct{
     ushort quantity2;
     ushort Item_ID;
     ushort quantity3;
+    uint unkn;
+    ushort null;
 }CreateEntry;
 
 typedef struct{
@@ -246,13 +251,24 @@ BlademasterWeaponData bmWeapons[1149];
 GunnerWeaponData null;
 GunnerWeaponData gnWeapons[353];
 FSeek(0x15ED04 + Offset);
-ArmorData armors[2096];
+ArmorData helms[436];
+ArmorData chests[420];
+ArmorData arms[411];
+ArmorData waist[409];
+ArmorData legs[420];
 FSeek(0x174ABC + Offset);
 Sharpness sharpness[40];
-FSeek(0x145684 + Offset);
-CreateEntry creates[1503];
+FSeek(0x1372C8 + Offset);
+CreateEntry helmCreates[436];
+CreateEntry chestCreates[420];
+CreateEntry armCreates[411];
+CreateEntry waistCreates[409];
+CreateEntry legCreates[420];
+CreateEntry bladeCreates[1150];
+CreateEntry gunCreates[354];
 FSeek(0x14B474 + Offset);
-UpgradeEntry upgrades[1503];
+UpgradeEntry bladeUpgrades[1150];
+UpgradeEntry gunnerUpgrades[354];
 FSeek(0x173F38 + Offset);
 Mod2WepType models[553];
 FSeek(0x175208 + Offset);
