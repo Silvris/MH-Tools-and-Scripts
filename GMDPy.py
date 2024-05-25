@@ -1,11 +1,19 @@
 import struct
 import sys
 
+BIGENDIAN = True
+
 def readUInt(file):
-    return struct.unpack("I",file.read(4))[0]
+    if BIGENDIAN:
+        return struct.unpack(">I",file.read(4))[0]
+    else:
+        return struct.unpack("I", file.read(4))[0]
 
 def readUInt64(file):
-    return struct.unpack("Q",file.read(8))[0]
+    if BIGENDIAN:
+        return struct.unpack("Q",file.read(8))[0]
+    else:
+        return struct.unpack(">Q", file.read(8))[0]
 
 def readNullTerminatedString(file):
     currentByte = file.read(1)
@@ -35,7 +43,10 @@ class LabelEntry:
 
 def ReadGMDv2(inFile):
     magic = inFile.read(4)
-    assert magic == b"GMD\x00"
+    if BIGENDIAN:
+        assert magic == b"DMG\x00"
+    else:
+        assert magic == b"GMD\x00"
     assert readUInt(inFile) == 66306
     inFile.read(4) #language
     inFile.read(8) #hash + null
